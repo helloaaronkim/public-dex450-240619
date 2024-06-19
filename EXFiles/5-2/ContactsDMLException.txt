@@ -1,0 +1,136 @@
+public class ContactsDML {
+
+    public static void standaloneDML(){
+        //----------------------------------------------------------
+        // スタンドアロン DML コマンドを使用し、新規取引先責任者レコードを追加します
+        //----------------------------------------------------------
+
+        // Contact 型の変数 name1 を宣言し、
+        // LastName を 'Minkowitz' としてインスタンス化します
+        Contact name1 = new Contact(LastName = 'Minkowitz');
+
+        // Contact 型の変数 name2 を宣言し、
+        // LastName を 'Singh' としてインスタンス化します
+        Contact name2 = new Contact(LastName='Singh');
+
+        // List<Contact> 型の変数 contacts を宣言し、インスタンス化します
+        List<Contact> contacts = new List<Contact>();
+
+        // name1 をリストに追加します
+        contacts.add(name1);
+
+        // name2 をリストに追加します
+        contacts.add(name2);
+
+        // スタンドアロン DML を使用し、contacts をデータベースに Insert します
+        insert contacts;
+
+        // 正常に登録できた場合は、挿入された Id 項目が変数にセットされます
+        // name1 の Id を デバッグログに出力します
+        System.debug('The Id of name1: ' + name1.Id);
+
+        // name2 の Id を デバッグログに出力します
+        System.debug('The Id of name2: ' + name2.Id);
+    }
+
+
+    public static void databaseMethodDML(){
+        //-------------------------------------------------------------
+        // Database クラスのメソッドを使用し、取引先責任者レコードを追加します
+        //-------------------------------------------------------------
+
+
+        // Contact 型の変数 name1 を宣言し、項目値はセットせずインスタンス化します
+        Contact name1 = new Contact();
+
+        // Contact 型の変数 name2 を宣言し、
+        // LastName を 'Picasso' としてインスタンス化します
+        Contact name2 = new Contact(LastName = 'Picasso');
+
+        // List<Contact> 型の変数 contacts を宣言し、インスタンス化します
+        List<Contact> contacts = new List<Contact>();
+
+        // name1 と name2 をリストに追加します
+        contacts.add(name1);
+        contacts.add(name2);
+
+        // Database.insert メソッドを使用し、
+        // スタンドアロン DML である insert contacts と同様の挙動を実行させます
+        // name1 は、必須項目がセットされていないため DML Exceptionが発生します
+        Database.insert(contacts);
+    }
+
+   public static void databaseMethodPartialCommit(){
+        //-----------------------------------------------------------------------------
+        // Database クラスのメソッドを使用し、取引先責任者レコードを追加します
+        // このメソッドでは、パラレルコミットで処理を行います
+        //-----------------------------------------------------------------------------
+
+        // Contact 型の変数 name1 を宣言し、項目値はセットせずインスタンス化します
+        Contact name1 = new Contact();
+
+        // Contact 型の変数 name2 を宣言し、
+        // LastName を 'Picasso' としてインスタンス化します
+        Contact name2 = new Contact(LastName = 'Picasso');
+
+        // List<Contact> 型の変数 contacts を宣言し、インスタンス化します
+        List<Contact> contacts = new List<Contact>();
+
+        // name1 と name2 をリストに追加します
+        contacts.add(name1);
+        contacts.add(name2);
+
+        // Database.insert メソッドを使用し、データを登録します
+        // パラメタを使用して、パラレルコミット可能にします
+        Database.insert(contacts, false);
+
+        // name2 の Id をデバッグログに出力します
+        System.debug('The Id of name2: ' + name2.id);
+    }
+
+    public static void exceptionsDML(){
+        List<Contact> contacts = new List<Contact>();
+
+        Contact noName = new Contact();
+        contacts.add(noName);
+
+        Contact newContact = new Contact(LastName = 'Benett');
+        contacts.add(newContact);
+
+        Contact longName = new Contact(LastName = '00085chars00085chars00085chars00085chars00085chars00085chars00085chars00085chars00085');
+        contacts.add(longName);
+
+        // 現在のリストをベースに新しいリストを宣言します - 後で使用します
+        List<Contact> newListContact = new List<Contact>(contacts);
+
+        // TODO #1: List<Database.SaveResult> 型の List を lsr として宣言し、
+        //          Database.insert メソッドを使用して、登録した結果を使用し初期化します。
+        //          部分コミットを可能とするパラメタを指定して、コールします。
+
+        // TODO #2: Database.SaveResult 型の変数 sr を使用し、lsr の For ループを構成します
+
+            // TODO #3: ループ内で、if 文を使用し、Database.SaveResult クラスの
+            //          isSuccess() メソッドを呼び出して、insertが失敗した場合のみ
+            //          処理されるブロックを構成します
+
+                // TODO #4: If 文内で sr.getErrors() の結果を受け取る、
+                //          Database.Error 型の変数 err を使用した For ループを構成します
+
+                    // TODO #5: err 変数から getStatusCode メソッドと getMessage メソッドを呼出し、
+                    //          その内容を保存するための Error_log__c オブジェクトのレコードを生成する。
+
+                }
+            }
+        }
+
+        newListContact[1] = null;
+        try {
+            List<Database.SaveResult> lsr2 = Database.insert(newListContact, false);
+        } catch(ListException e) {
+            Error_Log__c error_null = new Error_Log__c();
+            error_null.Source__c = 'exceptionsDML';
+            error_null.Message__c = e.getMessage();
+            insert error_null;
+        }
+    }
+}

@@ -1,0 +1,41 @@
+public class CourseDeliveryTriggerHandler {
+
+    //TODO #1: 以下の静的初期化ブロックを確認してください。
+    // これは、以前トリガブロック内にあった処理の一部をカプセル化したものです。
+    // これは、Apex トランザクション内で休日データが変更される可能性がないため、
+    // トランザクション内で preventInvalidCourseDeliveries メソッドが何回呼び出されたとしても、
+    // 1 回だけクエリが実行されることを保証するための記述です。
+    // このようなキャッシュは、SOQL クエリのガバナ制限を遵守するために役立ちます。
+    
+    public static Set<Date> allHolidays = new Set<Date>();
+
+    static {
+        for (Holiday h : [SELECT ActivityDate FROM Holiday]) {
+            allHolidays.add(h.ActivityDate);
+        }
+    }
+
+    //TODO #2: 以下の静的メソッドを確認してください。
+    // これは以前トリガブロック内にあった処理をカプセル化したものです。
+    // 静的メソッドなので、インスタンス化することなくメソッドを呼び出すことができます。
+    // Trigger.new と Trigger.oldMap を直接参照する代わりに、このメソッドに引数として渡された
+    // トリガコンテキスト変数を参照しています。
+    public static void preventInvalidCourseDeliveries(List<Course_Delivery__c> newCourseDeliveryList,
+                                                      Map<ID, Course_Delivery__c> oldCourseDeliveryMap) {
+
+        for (Course_Delivery__c cd : newCourseDeliveryList) {
+
+            //TODO #3: Apex の安全なナビゲーション演算子を用いて、
+            // oldCourseDeliveryMap を参照する以下の If 文を完成させます。
+            // oldCourseDeliveryMap が Null の場合、又は 古い開始日が新しい開始日と等しくない場合に、
+            // true と評価されるようにする必要があります。
+            if ( ) {                
+
+                // 開始日が休日セットに含まれる場合は、DML アクションをブロックします
+                if ( allHolidays.contains(cd.Start_Date__c) ) {
+                    cd.Start_Date__c.addError(Label.Invalid_Delivery_Start_Date);
+                }
+            }
+        }
+    }
+}

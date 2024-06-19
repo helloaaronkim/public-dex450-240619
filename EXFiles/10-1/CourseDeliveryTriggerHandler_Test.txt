@@ -1,0 +1,61 @@
+@isTest
+private class CourseDeliveryTriggerHandler_Test {
+
+    @testSetup
+    private static void testSetupObjectDataFactory() {
+        Course__c testCourse = new Course__c(Name = 'Test Course 1', Status__c = 'Active');
+        insert testCourse;
+        System.debug([SELECT Id, Name from Course__c]);
+
+        // TODO #1: System.runAs メソッドを使って混合 DML エラーを回避しつつ、
+        //          Test.loadData メソッドを使用して、静的リソースファイルから
+        //          Holiday オブジェクトのレコードをロードする方法を確認する。
+        Profile p = [SELECT Id FROM Profile WHERE Name='システム管理者'];
+        User u = [SELECT Id FROM User WHERE profileId = :p.Id LIMIT 1];
+        System.runAs(u) {
+            Test.loadData(Holiday.sObjectType, 'Test_Holidays');
+            System.debug([SELECT Id, ActivityDate, Name FROM Holiday]);
+        }
+    }
+
+    // 開始日が休日になっていない開催コースレコードが、
+    // エラーなしで insert できるかどうかをテストします。
+    @isTest
+	private static void insertCourseDeliverySuccess() {
+
+        // TODO #2: データベースから取得したコース情報を、
+        //          どのように course 変数に割り当てているかを確認する。
+        List<Course__c> activeCourses = [SELECT Id FROM Course__c LIMIT 1];
+        Course__c course = activeCourses[0];
+
+        Course_Delivery__c courseDelivery = new Course_Delivery__c();
+
+        //TODO #3: courseDelivery 変数の Course__c 項目に course 変数の id 項目の値を割り当てる
+
+        //TODO #4: courseDelivery の Start_Date__c 項目に値を割り当てているコードを確認する
+        courseDelivery.Start_Date__c = Date.newInstance(Date.today().year(), 9, 1);
+
+        //TODO #5: 以下のコードで・・・
+        //         1) courseDelivery レコードをデータベースに insert しようとしている
+        //         2) insertionResult で insert 結果を取得しようとしている
+        Test.startTest();
+        Database.SaveResult insertionResult = Database.insert(courseDelivery, false);
+        Test.stopTest();
+        
+        // insertionResult にエラーが含まれているかどうかを確認し、
+        // 含まれている場合には、どういうエラーなのかを判定する
+        Integer errorCount = 0;
+
+        //TODO #6: 事前に定義されているカスタム表示ラベルの値を、判定文に差し込む
+        if (!insertionResult.isSuccess()) {
+            if (insertionResult.getErrors()[0].getMessage() == <custom label>) {
+                System.debug('Received expected error message');
+            }
+            ++errorCount;
+        }
+
+        //TODO #7: System.assertEquals メソッドを使い、errorCount で報告されたエラーの数が
+        //         0 件ではない場合にアサーションを発生させる。
+
+    }
+}

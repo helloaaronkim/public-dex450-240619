@@ -1,0 +1,14 @@
+trigger CourseDeliveryTrigger on Course_Delivery__c (before insert, before update) {
+    // カスタムメタデータ型のレコード取得
+    Trigger_Switch__mdt tsw = Trigger_Switch__mdt.getInstance('CourseDeliveryTrigger');
+
+    // カスタムメタデータ型のレコードが見つからない、
+    // 又は Active_Flag が True に設定されている場合、処理を実行する
+    if (tsw == null || tsw.Active_Flag__c == true) {
+
+    // TODO #1: CourseDeliveryTriggerHandler クラスの static メソッド
+    // 			preventInvalidCourseDeliveries を呼び出し、
+    //          Trigger.new と Trigger.old を引数として渡します
+    }
+
+}

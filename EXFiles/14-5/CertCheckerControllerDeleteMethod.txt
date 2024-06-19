@@ -1,0 +1,15 @@
+    @AuraEnabled
+    public static Boolean deleteCertsHeld(List<Id> certIds) {
+        Boolean result = false;
+
+        // 選択された資格保有レコードの削除を実行する
+        try {
+            delete [SELECT Id FROM Certification_Held__c WHERE Id IN :certIds];
+            result = true;
+            
+        } catch (Exception e) {
+            throw new AuraHandledException('レコードの削除ができませんでした ' + e.getMessage());
+        }
+
+        return result;
+    }

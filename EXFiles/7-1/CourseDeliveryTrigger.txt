@@ -1,0 +1,23 @@
+//TODO #1: 対象となる DML イベントを記述する
+trigger CourseDeliveryTrigger on Course_Delivery__c () {
+    
+    //TODO #2: 以下のFor ループで、どのように休日情報を取得しているかを確認します
+    //         このコードでは単純化のため、繰り返しの休日は存在しないと仮定しています
+    Set<Date> allHolidays = new Set<Date>();
+    for (Holiday h : [SELECT ActivityDate FROM Holiday]) {
+        allHolidays.add(h.ActivityDate);
+    }
+    
+    for (Course_Delivery__c cd : Trigger.new) {
+		// Insert はすべて確認しますが、Update は Delivery Date が変更されたときのみ確認します。
+        Boolean checkDate = (Trigger.isInsert || 
+                             Trigger.oldMap.get(cd.Id).Start_Date__c != cd.Start_Date__c);
+        if (checkDate && cd.Start_Date__c != NULL) {
+            //TODO #3: 開始日が休日一覧に含まれる場合は、DML アクションをブロックします
+            //         IFブロックを作成し、allHolidays セットに  
+            //         courseDelivery.Start_Date__c が含まれていないか確認します
+            //         含まれている場合、addErrorメソッドと事前に定義したカスタム表示ラベルを使ってエラーを追加します。
+            
+        }
+    }
+}

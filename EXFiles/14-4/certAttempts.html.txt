@@ -1,0 +1,21 @@
+<template>
+
+    <!-- 表示するものを準備する -->
+    <lightning-card if:true={techIds} title={cardTitle} icon-name="utility:list">
+
+        <!-- 資格受験レコードの一覧  -->
+        <lightning-datatable
+            key-field="Id"
+            data={rowData}
+            columns={colData}
+            hide-checkbox-column>
+        </lightning-datatable>
+
+        <!-- エラーメッセージ -->
+        <template lwc:if={errorMessage}>
+            <div class="slds-var-p-horizontal_small" style="color: red">{errorMessage}</div>
+        </template>          
+
+    </lightning-card>
+    
+</template>

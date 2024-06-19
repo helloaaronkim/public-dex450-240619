@@ -1,0 +1,62 @@
+@isTest
+private class ContactsDML_Test {
+
+    // このメソッドは、スタンドアロン DML を使用し、2件の取引先責任者が登録されることを検証します
+    @isTest
+	private static void standaloneDMLTest() {
+        // TODO #1: 取引先責任者が 0 件であることをアサートするコードを確認します
+        System.assertEquals(0, [SELECT LastName FROM Contact].size());
+        
+        // ContactsDML クラスの standaloneDML メソッドをコールします
+        ContactsDML.standaloneDML();
+        
+        List<Contact> contactsPostInsert = [SELECT LastName FROM Contact];
+        // TODO #2: 2 件の取引先責任者が登録されていることをアサートするコードを確認します
+        System.assertEquals(2, contactsPostInsert.size());
+        
+        // TODO #3: 登録されたレコードの LastName に'Minkowitz' と 'Singh'が
+        //          含まれていることをアサートするコードを確認します
+        Set<String> lastNameSet = new Set<String>();
+        for (Contact contact : contactsPostInsert) {
+            lastNameSet.add(contact.LastName);
+        }
+        System.assert(lastNameSet.contains('Minkowitz'));
+        System.assert(lastNameSet.contains('Singh'));
+    }
+
+    // このメソッドは、Database DML の allOrNone オプションをデフォルト値(true)で使用し、
+    // 2件の取引先責任者を登録しますが、LastName 項目の設定されていないレコードが含まれるため、
+    // すべての処理が失敗することを検証します  
+    @isTest
+	private static void databaseMethodDMLTest() {
+        // TODO #4: DML Exception クラスの getMessage メソッドから返されるエラーメッセージが、
+        //          以下の文字列を含んでいることアサートするコードを確認する
+        //          '値を入力してください: [LastName]: [LastName]'.      
+        try {
+            ContactsDML.databaseMethodDML();
+            System.Assert(false);
+		} catch(DMLException e){
+            System.assert(e.getMessage().contains('値を入力してください: [LastName]: [LastName]'));
+        } 
+    }
+
+    // このメソッドは、Database DML の allOrNoneオプションを false として使用し、
+    // 2件の取引先責任者を登録しますが、LastName 項目が 設定されていないレコードが
+    // 含まれるため、1件だけ登録されることを検証します      
+    @isTest
+	private static void databaseMethodPartialCommitTest() {
+        /// TODO #5: 取引先責任者が 0 件であることをアサートするコードを確認します
+        System.assertEquals(0, [SELECT LastName FROM Contact].size());
+        
+        ContactsDML.databaseMethodPartialCommit();
+        
+        // TODO #6: assertEquals メソッドを使用し、取引先責任者レコードが
+        //          1件だけ登録されていることをアサートするコードを確認します
+        List<Contact> contactsPostInsert = [SELECT LastName FROM Contact];
+        System.assertEquals(1, contactsPostInsert.size());
+        
+        // TODO #7  登録されているレコードの LastName 項目の値が'Picasso'である
+        //          ことをアサートするコードを確認します
+        System.assertEquals('Picasso', contactsPostInsert[0].LastName);
+    }
+}

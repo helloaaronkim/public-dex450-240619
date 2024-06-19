@@ -1,0 +1,62 @@
+public with sharing class CourseTriggerHandler {
+
+    static final String RETIRED = 'Retired';
+    static final String ENROLLED = 'Enrolled';
+    static final String SCHEDULED = 'Scheduled';
+    static final String CANCELLED = 'Cancelled';
+    static final String ERROR_MESSAGE = 'Course has enrolled students';
+
+    public static void checkStatus(List<Course__c> triggerNew, 
+								   Map<Id, Course__c> oldMap, 
+								   Map<Id, Course__c> newMap)  {
+        /**
+        *  コースの状況が retired に変更された場合、Course Delivery情報を確認し
+        *  スケジュールされているコースがあり、1名以上の参加者が Enrolled に
+        *  なっている場合は、エラーにする
+        */
+
+        // Set<Id> を courseIds として宣言し、インスタンス化します
+        Set<Id> courseIds = New Set<Id>();
+
+        // コース受講者を探すため、対象のコース情報でループします
+        for ( Course__c course :  triggerNew) {
+            if ( oldMap.get(course.Id).Status__c != RETIRED && course.Status__c == RETIRED ) {
+
+                // course の Id 項目値を、courseIds に追加します
+                courseIds.add(course.Id);
+            }
+        }
+
+        // 処理対象のレコードがあるかどうかを確認
+        if ( courseIds.size() > 0 ) {
+
+            // TODO #1: キー値を Id、 キー値に対応する値を Course_Delivery__c とする Map を、 
+            //          courseDeliveryUpdate という変数名で宣言し、デフォルトのコンストラクタで初期化します
+
+
+            for (List<Course_Delivery__c> cds : [SELECT Id, Course__c, Status__c,
+                                                    (SELECT Status__c FROM Course_Attendees__r
+                                                      WHERE Status__c = :ENROLLED)
+                                                   FROM Course_Delivery__c
+                                                  WHERE Course__c IN :courseIds AND Status__c = :SCHEDULED]) {
+
+                for ( Course_Delivery__c cd : cds) {
+                    if ( cd.Course_Attendees__r != null  && cd.Course_Attendees__r.size() > 0 ) {
+                        newMap.get(cd.Course__c).addError(ERROR_MESSAGE);
+                    } else {
+                        // 開催コースレコードの状況項目値を 'キャンセル済み' に変更する
+                        cd.Status__c = CANCELLED;
+                        // TODO #2: cd 変数の id 項目値をキーとして、Course_Delivery__c オブジェクトのレコード(cd)を
+                        //          courseDeliveryUpdate の Map に格納する
+
+                    }
+                }
+            }
+
+            // TODO #3: courseDeliveryUpdate のサイズが0ではないことを判定する if ブロックを作成します
+            //          -- Map クラスの values メソッドを使い、update 文の引数として、処理対象となるレコードを取得します
+
+
+        }
+    }
+}

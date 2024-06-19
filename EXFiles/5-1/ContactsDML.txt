@@ -1,0 +1,71 @@
+public class ContactsDML {
+    public static void standaloneDML(){
+        //----------------------------------------------------------
+        // TASK 1: スタンドアロン DML コマンドを使用し、新規取引先責任者レコードを追加します
+        //----------------------------------------------------------
+
+        // TODO #1: Contact 型の変数 name1 を宣言し、
+        //          LastName を 'Minkowitz' としてインスタンス化します
+
+        // TODO #2: Contact 型の変数 name2 を宣言し、
+        //          LastName を 'Singh' としてインスタンス化します
+
+        // TODO #3: List<Contact> 型の変数 contacts を宣言し、インスタンス化します
+
+        // TODO #4: name1 をリストに追加します
+
+        // TODO #5: name2 をリストに追加します
+
+        // TODO #6: スタンドアロン DML を使用し、contacts をデータベースに Insert します
+
+        // 正常に登録できた場合は、挿入された Id 項目が変数にセットされます
+        // TODO #7: name1 の Id を デバッグログに出力します
+
+        // TODO #8: name2 の Id を デバッグログに出力します
+
+    }
+
+    public static void databaseMethodDML(){
+        //-------------------------------------------------------------
+        // TASK 2: Database クラスのメソッドを使用し、取引先責任者レコードを追加します
+        //-------------------------------------------------------------
+
+        // TODO #1: Contact 型の変数 name1 を宣言し、項目値はセットせずインスタンス化します
+
+        // TODO #2: Contact 型の変数 name2 を宣言し、
+        //          LastName を 'Picasso' としてインスタンス化します
+
+        // TODO #3: List<Contact> 型の変数 contacts を宣言し、インスタンス化します
+
+        // TODO #4: name1 と name2 をリストに追加します
+
+
+        // TODO #5: Database.insert メソッドを使用し、
+        //          スタンドアロン DML である insert contacts と同様の挙動を実行させます
+        //          name1 は、必須項目がセットされていないため DML Exceptionが発生します
+
+    }
+
+    public static void databaseMethodPartialCommit(){
+        //-----------------------------------------------------------------------------
+        // TASK 3: Database クラスのメソッドを使用し、取引先責任者レコードを追加します
+        //         このメソッドでは、パラレルコミットで処理を行います
+        //-----------------------------------------------------------------------------
+
+        // TODO #1: Contact 型の変数 name1 を宣言し、項目値はセットせずインスタンス化します
+
+        // TODO #2: Contact 型の変数 name2 を宣言し、
+        //          LastName を 'Picasso' としてインスタンス化します
+
+        // TODO #3: List<Contact> 型の変数 contacts を宣言し、インスタンス化します
+
+        // TODO #4: name1 と name2 をリストに追加します
+
+
+        // TODO #5: Database.insert メソッドを使用し、データを登録します
+        //          パラメタを使用して、パラレルコミット可能にします
+
+        // TODO #6: name2 の Id をデバッグログに出力します
+
+    }
+}

@@ -1,0 +1,34 @@
+import { LightningElement, api, wire } from 'lwc';
+import getTechniciansCertAttempts from '@salesforce/apex/CertCheckerController.getTechniciansCertAttempts';
+
+export default class CertAttempts extends LightningElement {
+    @api techIds;
+    cardTitle = '選択した取引先責任者の資格受験情報';
+	errorMessage;
+
+    // lightning-datatable コンポーネントの行と列の定義
+    rowData = [];
+    colData = [
+               {label: '技術者名', fieldName: 'TechName', type: 'text'},
+               {label: '資格名', fieldName: 'CertName', type: 'text'},
+               {label: '状況', fieldName: 'Status', type: 'text'},
+              ];
+
+    // 選択した技術者に関する資格受験情報を取得する
+    @wire(getTechniciansCertAttempts, {techIds: '$techIds'})
+    getTechniciansCertAttemptsFunction ({error, data}) {
+        this.rowData = [];
+        if (data) {
+            
+            // 取得したレコードデータを、構築されたテーブル定義にマッチングして表示する
+            this.rowData = data.map(rec => ({
+                Id: rec.Id,
+                TechName: rec.Certification_Candidate__r.Name,
+                CertName: rec.Certification_Element__r.Certification__r.Name,
+                Status: rec.Status__c
+            }));
+        } else if (error) {
+            this.errorMessage = error.body.message;
+        }
+    }    
+}

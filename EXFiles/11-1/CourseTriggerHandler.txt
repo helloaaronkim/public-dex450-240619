@@ -1,0 +1,89 @@
+public with sharing class CourseTriggerHandler {
+
+    static final String RETIRED = 'Retired';
+    static final String ENROLLED = 'Enrolled';
+    static final String SCHEDULED = 'Scheduled';
+    static final String CANCELLED = 'Cancelled';
+    static final String ERROR_MESSAGE = 'Course has enrolled students';
+
+    public static void checkStatus(List<Course__c> triggerNew, 
+	                               Map<Id, Course__c> oldMap, 
+								   Map<Id, Course__c> newMap) {
+
+        /**
+        *  コースの状況が retired に変更された場合、Course Delivery情報を確認し
+        *  スケジュールされているコースがあり、1名以上の参加者が Enrolled に
+        *  なっている場合は、エラーにする
+        */ 
+
+        // TODO #1: Set<Id> を courseIds として宣言し、インスタンス化します
+
+
+        // コース受講者を探すため、対象のコース情報でループします
+        for ( Course__c course :  triggerNew) {
+            if ( oldMap.get(course.Id).Status__c != RETIRED && 
+                                            course.Status__c == RETIRED ) {
+
+                // TODO #2: course の Id 項目値を、courseIds に追加します	
+
+
+                // TODO #3: ループの外側にペースト済みになっているため、
+				//          32行目～48行目（クエリおよび for ループ）を削除します
+                List<Course_Delivery__c> cds = [SELECT Id, Course__c, Status__c,
+                                                   (SELECT Status__c 
+                                                    FROM Course_Attendees__r
+                                                    WHERE Status__c = :ENROLLED)
+                                                FROM Course_Delivery__c
+                                                WHERE Course__c = :course.Id];
+                for (Course_Delivery__c cd : cds) {
+                    if ( cd.Status__c == 'Scheduled' && 
+                                        cd.Course_Attendees__r.size() > 0 ) {
+                        newMap.get(cd.Course__c).addError(ERROR_MESSAGE);
+                    } else {
+                        // Change the status of the Course Delivery record 
+                        //  to 'Cancelled'
+                        cd.Status__c = CANCELLED;
+                        update cd;
+                    }
+                }
+            }
+        }
+
+        // TODO #4: courseIds のサイズが 0以上であるかを判定する If ブロックを作成します
+        //          この If ブロックは TODO #9 でクローズするまでの処理を含むブロックとなります
+
+
+            // TODO #5: List<Course_Delivery__c> 型の cds 変数への割り当てを、SOQL for ループに変更します。
+            //          この For ループは、cds という List 型のイテレータを持つことになります。
+			//          このブロックは TODO #8 でクローズするまでの処理を含むブロックとします
+            // TODO #6: 以下のSOQL クエリを修正します。
+            //          既存の WHERE 句を置き換えて、以下の 2 つの条件を満たすようにします
+			//         	1. 開催コースレコードの状況項目値（Status__c）が SCHEDULED
+			//         	2. コース（Course__ｃ）が Set（courseIds）に含まれるレコードのみ
+            List<Course_Delivery__c> cds = [SELECT Id, Course__c, Status__c,
+                                               (SELECT Status__c 
+                                                FROM Course_Attendees__r
+                                                WHERE Status__c = :ENROLLED)
+                                            FROM Course_Delivery__c
+                                            WHERE Course__c = :course.Id];
+                for (Course_Delivery__c cd : cds) {
+
+                // TODO #7: 2つの if 条件の最初の条件（状況が Scheduled になっている）を削除し、
+                //          新たな条件に、Course_Delivery の Course_Attendees__r が nullではない
+                //          という条件を追加します
+                    if ( cd.Status__c == 'Scheduled'  && 
+                                        cd.Course_Attendees__r.size() > 0 ) {
+                        newMap.get(cd.Course__c).addError(ERROR_MESSAGE);
+                    } else {
+                        // Change the status of the Course Delivery record 
+                        //   to 'Cancelled'
+                        cd.Status__c = CANCELLED;
+                        update cd;
+                    }
+               }
+            // TODO #8: SOQL for ループをブロックを閉じます
+
+         // TODO #9: if ブロックを閉じます
+
+    }
+}

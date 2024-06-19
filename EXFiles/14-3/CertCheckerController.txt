@@ -1,0 +1,24 @@
+public with sharing class CertCheckerController {
+
+    // TODO: Lightning コンポーネントから、このメソッドを呼び出すためのアノテーションを追加
+    //       さらに、クライアントサイドのデータキャッシュを有効化する
+
+    public static List<Certification_Held__c> getCertsHeld(Id acctId) {
+        List<Certification_Held__c> certsHeld = new List<Certification_Held__c>();
+
+        // 指定されたサービスベンダ（取引先）に所属する技術者の持つ資格保有情報を取得する
+        try {
+            certsHeld = [SELECT Id, Date_Achieved__c, Certified_Professional__r.Name, Certification__r.Name, 
+                                Certified_Professional__c, Certification__c
+                         FROM Certification_Held__c
+                         WHERE Certified_Professional__r.AccountId = :acctId
+                         WITH SECURITY_ENFORCED
+                         ORDER BY Certified_Professional__r.Name
+                        ];            
+        } catch (Exception e) {
+            throw new AuraHandledException('資格保有レコードを取得できませんでした ' + e.getMessage());
+        }
+
+        return certsHeld;
+    }
+}

@@ -1,0 +1,10 @@
+trigger ErrorMessageTrigger on Error_Message__e (after insert) {
+
+    List<Error_Log__c> errs = new List<Error_Log__c>();
+    
+    // TODO #1
+    // trigger.new をループして、各プラットフォームイベントに対して 
+    // Error_Log__c レコードを作成し、作成したレコードは errs リストに追加する
+     
+    insert errs;
+}

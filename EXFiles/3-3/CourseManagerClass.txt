@@ -1,0 +1,26 @@
+public class CourseManager {
+
+    /**
+    *  このクラスは、コースオブジェクトのレコードを管理するメソッドを含みます
+    */
+
+    public static Set<Course__c> findDuplicates(List<Course__c> oldCourseList, List<Course__c> newCourseList) {
+
+        /** TODO #1: Set型の Course__c sObject の Set を courseDuplicatesSet という名前で宣言し、
+		 *           パラメタなしで、新しい Course__c 型の Setとして初期化します。
+		 */
+
+
+		/** TODO #2: Course__c 型の newCourse を拡張 for ループの変数として宣言し、
+		 *           newCourseList　の件数分イテレーションします。
+		 *           ループ内では:
+		 *           -- もし、newCourseの値が、oldCourseList に含まれる場合:
+		 *              -- courseDuplicatesSet の addメソッドをコールし、コレクションに追加します。
+		 */
+
+
+		/** TODO #3: courseDuplicatesSet をリターンします。
+		 */
+
+    }
+}

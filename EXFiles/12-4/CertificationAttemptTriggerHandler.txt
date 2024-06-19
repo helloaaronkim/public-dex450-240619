@@ -1,0 +1,208 @@
+public without sharing class CertificationAttemptTriggerHandler {
+
+    public static void createCertificationHeld(List<Certification_Attempt__c> certAttempts, 
+											   Map<Id, Certification_Attempt__c> oldMap) {
+        /**
+		* Contact（取引先責任者）が資格受験（Ceretification Attempt)に合格した場合、
+		* 保有資格（Certification Held）情報の変更に必要な、関連する資格受験情報を
+        * 収集する必要があります
+		*/
+
+        System.Debug('Calling the createCertificationHeld method');
+
+        // 受験者および認定資格情報を格納する Set を宣言します
+        // SOQLで、既存の資格受験の検索条件に使用します
+        Set<Id> candidates = new Set<Id>();
+        Set<Id> certifications = new Set<Id>();
+
+        /** TODO #1: List<Certification_Attempt__c> 型の certAttemptsPass を宣言し、インスタンス化します */
+
+
+        Map<String, Integer> passCounts = new Map<String, Integer>();
+
+        /** TODO #2: Map<String, Certification_Held__c> 型の certsHeldToAdd を宣言し、インスタンス化します */
+
+
+        // 入力パラメタで受け取った certAttempts から、状況が'Complete/Pass'になっている情報を探します
+        for (Certification_Attempt__c attempt : certAttempts) {
+            if (attempt.Status__c== 'Complete/Pass' && (oldMap==null || oldMap.get(attempt.Id).Status__c!='Complete/Pass')) {
+                candidates.add(attempt.Certification_Candidate__c);
+                certifications.add(attempt.Certification_Id__c);
+
+                /** TODO #3: certAttemptsPass リストに attempt を追加します　*/
+
+            }
+        }
+
+        for (List<Certification_Attempt__c> cAs:[SELECT Id, Certification_Id__c, Certification_Candidate__c, Number_of_Elements_for_Cert__c
+                                                   FROM Certification_Attempt__c
+                                                  WHERE Certification_Candidate__c IN :candidates
+                                                    AND Status__c = 'Complete/Pass' AND Certification_element__r.Certification__c in:certifications]) {
+            for (Certification_Attempt__c cA: cAs) {
+                System.debug('Retrieved certAttempt id' + cA.id + ' candidate id'
+                            + cA.Certification_Id__c + ' certification id' + cA.Certification_Candidate__c
+                            + ' number of elements for cert ' + cA.Number_of_Elements_for_Cert__c);
+                String curKey = cA.Certification_Candidate__c + cA.Certification_Id__c;
+				if (passCounts.containsKey(curKey)) {
+					passCounts.put(curKey, (passCounts.get(curKey) + 1));
+				} else {
+					passCounts.put(curKey, 1);
+				}
+            }
+        }
+
+        System.debug('Size of passCounts = ' + passCounts.size());
+
+        /** TODO #4: certAttemptsPass の要素を繰り返し処理する for ループを実装します
+ 		 *           ループ時のイテレータは Certification_Attempt__c certAttempt とします
+ 		 *           ループ内では以下の処理を実装します
+ 		 *           -- String 型の変数 currentKey を宣言し、certAttempt に含まれる
+ 		 *              Certification_Candidate__c と certAttempt.Certification_Id__c
+ 		 *              を連結した文字列で初期化します
+ 		 *           -- currentKey をキーとし、passCounts から Integer 値を取得し、
+ 		 *              certAttempt の資格要素の数（Number_Of_Elements_For_Cert__c）
+ 		 *              と一致するかを判定する if ブロックを実装します
+         *
+ 		 *              数値が一致 = 認定取得となる場合、以下の処理を実装
+         *              -- 保有（Certification_Held）情報を以下の手順で作成
+         *              -- Certification_Held__c 型の certHeld をインスタンス化
+		 *              -- 認定日（Date_Achieved__c）に、
+		 *                 certAttempt 変数に含まれる Completion_Date__c を設定
+		 *              -- 認定資格（Certification__c）に、
+		 *                 certAttempt 変数に含まれる Certification_Id__c を設定
+		 *              -- 資格認定者（Certified_Professional__c）に、
+		 *                 certAttempt 変数に 含まれる Certification_Candidate__c を設定
+         *              -- Map（certsHeldToAdd）に、currentKey と certHeld をキー/値として追加
+		 */
+
+
+        /** TODO #5: try-catch ブロックを作成：
+		 *          -- try セクション：
+		 *             -- certsHeldToAdd のサイズが 0より大きい場合：
+		 *                -- certsHeldToAdd の情報を insert する
+		 *                -- debug メソッドを使用し、登録レコード件数を出力
+         *          -- System.DMLException 型の変数 ex を受け取る catch セクション：
+		 *             -- Error_Log__c オブジェクトの新規レコードを作成してエラー情報を記録
+         *                -- Source__c 項目の値には 'createCertificationHeld' の文字列を設定
+         *                -- message__c 項目の値には ex.getMessage() の戻り値を設定
+         *             -- (オプション課題)
+         *                -- エラーの詳細情報を含む、プラットフォームイベントを即時発行する
+		 */
+
+
+    }
+
+
+    public static void grantInstructorSharingAccess(List<Certification_Attempt__c> triggerNew, 
+													Map<Id, Certification_Attempt__c> oldMap, 
+													Boolean isInsert, Boolean isUpdate) {
+
+        /**
+		*  新規の資格受験にインストラクターが割り当てられた、または
+		*  既存のインストラクター情報が変更された場合、レコードアクセスに
+		*  必要な権限を新規インストラクターに与え、以前のインストラクター
+		*  からは取り去る必要があります
+		*/
+
+        System.debug('Starting the Grant Instructor Sharing Access logic');
+
+        // バルク追加用の共有レコードを格納するリスト
+        List<Certification_Attempt__Share> sharesToCreate = new List<Certification_Attempt__Share>();
+
+        // バルク削除用の共有レコードを格納するリスト
+        List<Certification_Attempt__Share> sharesToDelete = new List<Certification_Attempt__Share>();
+
+        // CertAttempt の ID と インストラクターの ID を格納するためのマップ
+        Map<Id, Id>certAttemptToInstructorMap = new Map<Id, Id>();
+
+        // トリガのレコード数でループ
+        for (Certification_Attempt__c certAttempt : triggerNew) {
+
+            // insert 処理またはインストラクター変更の場合かを判定
+            if (isInsert || certAttempt.Certifying_Instructor__c != oldMap.get(certAttempt.Id).Certifying_Instructor__c) {
+
+                // 新規の共有レコードを作成
+                if (certAttempt.Certifying_Instructor__c != null) {
+                    Certification_Attempt__Share certAttemptShare = new Certification_Attempt__Share(
+                        parentId = certAttempt.Id,
+                        userOrGroupId = certAttempt.Certifying_Instructor__c,
+                        rowCause = Schema.Certification_Attempt__Share.RowCause.Certifying_Instructor__c,
+                        accessLevel = 'Edit'
+                    );
+                    sharesToCreate.add(certAttemptShare);
+                }
+            }
+
+            if (isUpdate) {
+                // update 処理だった場合はバルク追加用のリストに格納
+                if ( certAttempt.Certifying_Instructor__c != oldMap.get(certAttempt.Id).Certifying_Instructor__c ) {
+                    // Add to map of Instructor changes
+                    System.debug('certAttempt.Certifying_Instructor__c is: ' + certAttempt.Certifying_Instructor__c);
+                    certAttemptToInstructorMap.put(certAttempt.Id, certAttempt.Certifying_Instructor__c);
+                }
+            }
+        }
+
+        if ( certAttemptToInstructorMap.size() > 0 ) {
+
+            System.debug('certAttemptToInstructorMap is: ' + certAttemptToInstructorMap);
+
+            for (Certification_Attempt__Share certAttemptShare :
+                                            [SELECT UserOrGroupId, RowCause, ParentId, Id, AccessLevel
+                                               FROM Certification_Attempt__Share
+                                              WHERE ParentId IN :certAttemptToInstructorMap.keySet()
+                                                AND RowCause = 'Certifying_Instructor__c']) {
+                if (certAttemptToInstructorMap.get(certAttemptShare.ParentId) != certAttemptShare.UserOrGroupId) {
+                    sharesToDelete.add(certAttemptShare);
+                }
+            }
+        }
+
+        try {
+            if ( sharesToCreate.size() > 0 ) {
+                insert sharesToCreate;
+            }
+            if ( sharesToDelete.size() > 0) {
+                delete sharesToDelete;
+            }
+        } catch (System.DmlException ex) {
+            Error_Log__c err = new Error_Log__c();
+            err.Source__c = 'grantInstructorSharingAccess';
+            err.message__c = ex.getMessage();
+            insert err;
+        }
+    }
+
+    public static void validateCertificationAttempt(List<Certification_Attempt__c> triggerNew) {
+
+        /**
+        *  Contact（取引先責任者）が、新規の Certification Attemptレコードを
+        *  作成しようとしたとき、その要素が "Complete/Pass" や "In Progress"
+        *  である場合は、エラーとする
+        */
+
+        System.debug('Starting the Validate Certification Attempt logic');
+
+        // すべての 'In Progress' または 'Complete/Pass' のレコード等の情報を連結した文字列を格納する
+        Set<String> concatStudentElement = new Set<String>();
+        Set<ID> candidateIDs = new Set<ID>();
+        for (Certification_Attempt__c dbca : triggerNew) {
+            candidateIDs.add(dbca.Certification_Candidate__c);
+        }
+        for (Certification_Attempt__c dbca : [SELECT Certification_Candidate__c, Certification_Element__c, Status__c
+                                               FROM Certification_Attempt__c
+                                              WHERE Status__c IN ('In Progress', 'Complete/Pass')
+                                                AND Certification_Candidate__c IN :candidateIDs]) {
+            // 必要な情報 1.受験者 2.どの要素か 3.状況（ステータス）
+            concatStudentElement.add((String)dbca.Certification_Candidate__c + (String)dbca.Certification_Element__c + (String)dbca.Status__c);
+        }
+
+        for (Certification_Attempt__c ca : triggerNew) {
+            // 'In Progress' または 'Complete/Pass'のレコードがある場合はエラーとする
+            if (concatStudentElement.contains((String)ca.Certification_Candidate__c + (String)ca.Certification_Element__c + 'In Progress') ||
+                concatStudentElement.contains((String)ca.Certification_Candidate__c + (String)ca.Certification_Element__c + 'Complete/Pass')) {
+				ca.addError('Cannot attempt cert for element already in progress or completed');
+            }
+        }
+    }
+}
