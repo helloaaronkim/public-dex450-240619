@@ -14,7 +14,7 @@ String selectClause = 'SELECT Id, Subject, CreatedDate ';
 String fromClause = 'FROM Case ';
 
 //TODO: 要件に従って、whereClause 変数を埋める
-String whereClause = 'PLEASE_FILL_ME_IN';  
+String whereClause = 'WHERE CreatedDate = LAST_N_DAYS:' + numDays;
 
 String fullQuery = selectClause + fromClause + whereClause;
 List<Case> caselist = Database.query(fullQuery);
@@ -23,3 +23,5 @@ System.debug('\n\nTotal number of cases: ' + caseList.size());
 for (Case c : caseList) {
     System.debug(c);
 }
+
+List<Case> caseList = [SELECT Id, Subject, CreatedDate FROM Case WHERE CreatedDate = LAST_N_DAYS:numDays];

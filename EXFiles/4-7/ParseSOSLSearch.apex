@@ -8,7 +8,7 @@ List<List<sObject>> searchResults = [FIND :searchString
  /** TODO #1: List<Contact> 型の resultContacts を宣言し、
  *           searchResults の 0番目の結果を代入
  */ 
-
+List<Contact> contacts = searchResults[0];
 
  /** TODO #2: Contact 型の resultContact を使用して、resultContacts の拡張 For ループを定義
  *           ループ内では、System.debug() を 3 回コールし、以下の情報を出力：
@@ -16,12 +16,14 @@ List<List<sObject>> searchResults = [FIND :searchString
  *             -- resultContact の first name 項目
  *             -- resultContact の last name 項目
  */
-
-
+for (Contact c : contacts) {
+    System.debug('CONTACT NAME=' + c.LastName);
+}
+    
 /** TODO #3: List<User> 型の resultUsers を宣言し、
  *           searchResults の 1番目の結果を代入
  */
-
+List<User> resultUsers = searchResults[1];
 
 for(User resultUser : resultUsers){
     System.debug('The User id is: ' + resultUser.id);

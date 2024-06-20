@@ -8,3 +8,29 @@
 //
 //  コマンドパレット又は開発者コンソールから SOQL クエリを実行し、意図した通りに動作していることを確認する。
 //--------------------------------------------------------------------------------------------
+
+
+// Parent : Certification__c
+
+// Child : Course__c
+
+
+SELECT Name, (SELECT Name FROM Courses__r) FROM Certification__c
+WHERE ID IN (SELECT Certification__c FROM Course__c WHERE Certification__c <> NULL)
+
+SELECT Name, Certification__c, Certification__r.Name FROM Course__c WHERE Certification__c != NULL
+
+// WHERE Courses__r.Name <> NULL
+// 
+//  NAME          COURSES__R.NAME     
+//  ───────────── ─────────────────── 
+//  AWCA Network  [102] AWCA Network  
+//  AWCA Security [103] AWCA Security 
+//  AWCP Server   [201] AWCP Server   
+//  AWCM Network  [302] AWCM Network  
+//  AWCP Security [203] AWCP Security 
+//  AWCA Server   [101] AWCA Server   
+//  AWCM Server   [301] AWCM Server   
+//  AWCM Security [303] AWCM Security 
+//  AWCP Network  [202] AWCP Network  
+// Total number of records retrieved: 9.

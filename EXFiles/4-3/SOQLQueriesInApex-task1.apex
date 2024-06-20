@@ -8,3 +8,7 @@
 
 Case aCase = [SELECT Subject FROM Case WHERE ID = '500IT00002iJKycYAG'];
 System.debug('SAMPLE DATA=' + aCase);
+
+SELECT Id FROM Contact
+
+

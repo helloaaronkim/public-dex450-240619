@@ -8,9 +8,21 @@
 //              "取引先責任者： Erica Neumann は次の取引先に関連付けられている： Acme Corp"
 //--------------------------------------------------------------------------------------------
 
-for ( /* TODO:  Task 1 で作成したクエリを使い、取引先責任者の SOQL クエリを反復処理する*/ ) {
-    for (/* TODO: 外側の For ループのイテレータである cList を使って、反復処理する */ ) {
-        //TODO: 以下の文を動的な物に変更する
-        System.debug('Contact: Erica Neumann is related to the following Account: Acme Corp')
+// SELECT Name, Account.Name FROM Contact
+
+List<Contact> result = [SELECT Name, Account.Name FROM Contact];
+for (Integer i = 0; i < result.size(); i++) {
+    System.debug('INDEX=' + i);
+    // insert, update ... 0 of 150
+}
+
+for (List<Contact> contacts : [SELECT Name, Account.Name FROM Contact]) {
+    System.debug('SIZE=' + contacts.size());
+    for (Contact c : contacts) {
+        // System.debug('CONTACT=' + c);
     }
 }
+
+// insert, update
+
+SELECT Name, Account.Name FROM Contact
