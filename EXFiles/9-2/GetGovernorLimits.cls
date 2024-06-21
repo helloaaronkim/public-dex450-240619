@@ -1,0 +1,50 @@
+public class GetGovernorLimits {
+    
+    /*TODO#1: 
+     * LimitsResult 内部クラスでは「limitUsage」と「limitValue」という、
+     * 2つの呼び出し可能な変数を宣言する。
+     * どちらの変数もデータ型が Integer でアクセス修飾子が public である必要があります。
+     */
+    public class LimitsResult {
+        @InvocableVariable(Label = 'Limit Usage')
+        public Integer limitUsage = 0;
+
+        @InvocableVariable(Label = 'Limit Value')
+        public Integer limitValue = 0;
+    }
+
+    /*TODO#2:
+     * getLimit メソッドを呼び出し可能なメソッドとして定義する。
+     */
+
+    @InvocableMethod(Label = 'ガバナー制限を取得します。')
+    public static List<LimitsResult> getLimit(List<String> limitNames) {
+
+        List<LimitsResult> results = new List<LimitsResult>();
+
+        for (String limitName : limitNames) {
+
+            LimitsResult result = new LimitsResult();
+
+            switch on limitName.toUpperCase() {
+                when 'QUERYROWS' {
+                    result.limitUsage = Limits.getQueryRows();
+                    result.limitValue = Limits.getLimitQueryRows();
+                }
+                /*TODO#3
+                 * "QUERIES", "DMLROWS", "DMLSTATEMENTS" の入力を処理するステートメントを追加します。
+                 * 入力に応じて、適切な Limits クラスのメソッドを呼び出します。 
+                 * 取得した情報を正しく返却できるように、変数に格納します。
+                 */
+
+                when else {
+                    result.limitUsage = -1;
+                    result.limitValue = -1;
+                }
+            }
+            results.add(result);
+        }
+        
+        return results;
+    }
+}
